@@ -24,12 +24,12 @@ jobs:
           python-version: '3.11'
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('windows/requirements.txt') }}
+          key: pip-windows-${{ hashFiles('windows/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            pip-windows-
 
       - name: Install Python dependencies
         run: |
@@ -42,7 +42,7 @@ jobs:
           pyinstaller --onefile --noconsole --name seeyou-windows stalker_client.py
 
       - name: Upload EXE artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-exe
           path: windows/dist/seeyou-windows.exe
