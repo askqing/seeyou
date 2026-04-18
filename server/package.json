@@ -1,0 +1,22 @@
+{
+  "name": "stalker-panel-server",
+  "version": "1.0.0",
+  "description": "视奸面板 - 后端服务器，接收客户端数据并提供 Web 仪表盘 API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": ["monitoring", "dashboard", "stalker-panel"],
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "socket.io": "^4.8.1",
+    "sql.js": "^1.12.0",
+    "uuid": "^11.0.5"
+  }
+}

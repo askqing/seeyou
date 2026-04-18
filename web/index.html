@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>视奸面板 - Monitoring Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- ===== MAIN APP ===== -->
+  <div class="app-container" id="appContainer">
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-left">
+      <button class="sidebar-toggle" id="sidebarToggle" title="切换侧栏">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="logo">
+        <svg class="logo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+        <h1>视奸面板</h1>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="connection-status" id="connectionStatus">
+        <span class="status-dot disconnected"></span>
+        <span class="status-text">未连接</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="header-time" id="headerTime">--:--:--</span>
+      <span class="header-stats" id="headerStats">0 台设备在线</span>
+    </div>
+  </header>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>设备列表</h2>
+      <span class="device-count" id="deviceCount">0</span>
+    </div>
+    <div class="sidebar-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="deviceSearch" placeholder="搜索设备...">
+    </div>
+    <div class="device-list" id="deviceList">
+      <div class="device-list-empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        <p>等待设备连接...</p>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn btn-sm btn-outline" id="refreshDevices">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        刷新设备
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content" id="mainContent">
+    <!-- Tab Navigation -->
+    <nav class="tab-nav" id="tabNav">
+      <button class="tab-btn active" data-tab="monitor">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        实时监控
+      </button>
+      <button class="tab-btn" data-tab="screenshots">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        截图中心
+      </button>
+      <button class="tab-btn" data-tab="sensors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/></svg>
+        传感器
+      </button>
+      <button class="tab-btn" data-tab="behavior">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        行为分析
+      </button>
+      <button class="tab-btn" data-tab="bluetooth">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg>
+        蓝牙雷达
+      </button>
+      <button class="tab-btn" data-tab="input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="12" x2="8.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="16" y1="12" x2="16.01" y2="12"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="12" y1="16" x2="12.01" y2="16"/><line x1="16" y1="16" x2="16.01" y2="16"/></svg>
+        输入分析
+      </button>
+    </nav>
+
+    <!-- ===== TAB: 实时监控 ===== -->
+    <section class="tab-panel active" id="tab-monitor">
+      <div class="panel-header">
+        <h2>实时监控</h2>
+        <div class="panel-actions">
+          <button class="btn btn-sm btn-primary" id="refreshMonitor">刷新</button>
+        </div>
+      </div>
+
+      <!-- Device Cards Grid -->
+      <div class="device-grid" id="monitorDeviceGrid">
+        <div class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <p>暂无设备数据</p>
+        </div>
+      </div>
+
+      <!-- Live Event Feed -->
+      <div class="section-block">
+        <h3>
+          <span class="live-indicator"></span>
+          实时事件流
+        </h3>
+        <div class="event-feed" id="eventFeed">
+          <div class="event-item event-empty">等待事件...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: 截图中心 ===== -->
+    <section class="tab-panel" id="tab-screenshots">
+      <div class="panel-header">
+        <h2>截图中心</h2>
+        <div class="panel-actions">
+          <label class="auto-cleanup-note">📸 所有截图仅保留24小时</label>
+        </div>
+      </div>
+
+      <!-- Screenshot Controls -->
+      <div class="screenshot-controls">
+        <div class="control-group">
+          <h3>设备截图</h3>
+          <div class="screenshot-device-btns" id="screenshotDeviceBtns">
+            <span class="text-muted">暂无设备</span>
+          </div>
+        </div>
+        <div class="control-group stress-test-section">
+          <h3>⚡ 压力测试模式</h3>
+          <p class="text-muted text-sm">快速连续请求截图，测试响应/拒绝速度</p>
+          <div class="stress-controls">
+            <div class="form-group">
+              <label>间隔(ms)</label>
+              <input type="number" id="stressInterval" value="500" min="100" max="5000" step="100">
+            </div>
+            <div class="form-group">
+              <label>次数</label>
+              <input type="number" id="stressCount" value="20" min="1" max="100">
+            </div>
+            <div class="form-group">
+              <label>目标设备</label>
+              <select id="stressDevice">
+                <option value="">选择设备</option>
+              </select>
+            </div>
+            <button class="btn btn-danger" id="startStressTest" disabled>开始压力测试</button>
+            <button class="btn btn-outline btn-sm" id="stopStressTest" style="display:none">停止</button>
+          </div>
+          <div class="stress-stats" id="stressStats" style="display:none">
+            <div class="stat-row">
+              <span>已发送:</span><strong id="stressSent">0</strong>
+            </div>
+            <div class="stat-row">
+              <span>成功:</span><strong id="stressSuccess" class="text-success">0</strong>
+            </div>
+            <div class="stat-row">
+              <span>拒绝:</span><strong id="stressRejected" class="text-danger">0</strong>
+            </div>
+            <div class="stat-row">
+              <span>平均响应:</span><strong id="stressAvgTime">--</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screenshot Gallery -->
+      <div class="section-block">
+        <h3>截图画廊</h3>
+        <div class="screenshot-gallery" id="screenshotGallery">
+          <div class="empty-state-sm">暂无截图</div>
+        </div>
+      </div>
+
+      <!-- Stress Test Timing Chart -->
+      <div class="section-block" id="stressChartBlock" style="display:none">
+        <h3>压力测试 - 响应时间分布</h3>
+        <div class="chart-container">
+          <canvas id="stressChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: 传感器 ===== -->
+    <section class="tab-panel" id="tab-sensors">
+      <div class="panel-header">
+        <h2>传感器</h2>
+        <div class="panel-actions">
+          <select id="sensorDevice" class="select-input">
+            <option value="">选择设备</option>
+          </select>
+          <button class="btn btn-sm btn-primary" id="calibrateBtn" disabled>
+            🔧 传感器校准
+          </button>
+        </div>
+      </div>
+
+      <div class="sensor-grid">
+        <!-- Ambient Light -->
+        <div class="card sensor-card">
+          <div class="card-header">
+            <h3>☀️ 环境光线</h3>
+            <span class="sensor-value" id="currentLux">-- lux</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="lightChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Step Counter -->
+        <div class="card sensor-card">
+          <div class="card-header">
+            <h3>👟 今日步数</h3>
+            <span class="sensor-value" id="todaySteps">-- 步</span>
+          </div>
+          <div class="chart-container chart-sm">
+            <canvas id="stepChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Step Cross Analysis -->
+        <div class="card sensor-card sensor-card-wide">
+          <div class="card-header">
+            <h3>📊 步数 vs 摸鱼 交叉分析</h3>
+            <span class="text-muted text-sm">对比步数规律与App使用频率，标记异常</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="stepCrossChart"></canvas>
+          </div>
+          <div class="analysis-notes" id="analysisNotes">
+            <div class="empty-state-sm">选择设备后查看分析</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: 行为分析 ===== -->
+    <section class="tab-panel" id="tab-behavior">
+      <div class="panel-header">
+        <h2>行为分析</h2>
+        <div class="panel-actions">
+          <select id="behaviorDevice" class="select-input">
+            <option value="">选择设备</option>
+          </select>
+          <button class="btn btn-sm btn-primary" id="refreshBehavior">刷新数据</button>
+        </div>
+      </div>
+
+      <div class="behavior-grid">
+        <!-- App Usage Heatmap -->
+        <div class="card behavior-card">
+          <div class="card-header">
+            <h3>📅 App 使用频率热力图</h3>
+            <span class="text-muted text-sm">时段 × 星期</span>
+          </div>
+          <div class="heatmap-container" id="appHeatmapContainer">
+            <div class="empty-state-sm">选择设备后加载</div>
+          </div>
+        </div>
+
+        <!-- Operation Rhythm -->
+        <div class="card behavior-card">
+          <div class="card-header">
+            <h3>📈 操作节奏</h3>
+            <span class="text-muted text-sm">App 切换频率趋势</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="rhythmChart"></canvas>
+          </div>
+        </div>
+
+        <!-- App Switch Chain -->
+        <div class="card behavior-card behavior-card-wide">
+          <div class="card-header">
+            <h3>🔗 App 切换链</h3>
+            <span class="text-muted text-sm">应用切换序列可视化</span>
+          </div>
+          <div class="switch-chain-container" id="switchChainContainer">
+            <div class="empty-state-sm">选择设备后加载</div>
+          </div>
+        </div>
+
+        <!-- Window Switch Heatmap (Windows devices) -->
+        <div class="card behavior-card behavior-card-wide" id="windowHeatmapCard">
+          <div class="card-header">
+            <h3>🪟 窗口切换频率热力图</h3>
+            <span class="text-muted text-sm">仅 Windows 设备</span>
+          </div>
+          <div class="heatmap-container" id="windowHeatmapContainer">
+            <div class="empty-state-sm">等待 Windows 设备数据</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: 蓝牙雷达 ===== -->
+    <section class="tab-panel" id="tab-bluetooth">
+      <div class="panel-header">
+        <h2>蓝牙雷达</h2>
+        <div class="panel-actions">
+          <select id="bluetoothDevice" class="select-input">
+            <option value="">选择设备</option>
+          </select>
+          <button class="btn btn-sm btn-primary" id="scanBluetooth" disabled>🔍 开始扫描</button>
+        </div>
+      </div>
+
+      <div class="bluetooth-grid">
+        <div class="card bluetooth-radar-card">
+          <div class="card-header">
+            <h3>雷达视图</h3>
+          </div>
+          <div class="radar-container">
+            <canvas id="radarCanvas" width="500" height="500"></canvas>
+          </div>
+        </div>
+        <div class="card bluetooth-list-card">
+          <div class="card-header">
+            <h3>发现设备 <span class="badge" id="btDeviceCount">0</span></h3>
+          </div>
+          <div class="bluetooth-device-list" id="bluetoothDeviceList">
+            <div class="empty-state-sm">点击"开始扫描"搜索附近设备</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: 输入分析 ===== -->
+    <section class="tab-panel" id="tab-input">
+      <div class="panel-header">
+        <h2>输入分析</h2>
+        <div class="panel-actions">
+          <select id="inputDevice" class="select-input">
+            <option value="">选择设备</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-grid">
+        <!-- Idle Type Detection -->
+        <div class="card input-card">
+          <div class="card-header">
+            <h3>🟢 输入空闲检测</h3>
+          </div>
+          <div class="idle-status-grid" id="idleStatusGrid">
+            <div class="idle-status-item">
+              <div class="idle-indicator" id="mouseIdleIndicator">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="6" y="3" width="12" height="18" rx="6"/><line x1="12" y1="9" x2="12.01" y2="9"/></svg>
+              </div>
+              <span class="idle-label">鼠标</span>
+              <span class="idle-state" id="mouseIdleState">--</span>
+              <span class="idle-duration" id="mouseIdleDuration"></span>
+            </div>
+            <div class="idle-status-item">
+              <div class="idle-indicator" id="keyboardIdleIndicator">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="12" x2="8.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="16" y1="12" x2="16.01" y2="12"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="12" y1="16" x2="12.01" y2="16"/><line x1="16" y1="16" x2="16.01" y2="16"/></svg>
+              </div>
+              <span class="idle-label">键盘</span>
+              <span class="idle-state" id="keyboardIdleState">--</span>
+              <span class="idle-duration" id="keyboardIdleDuration"></span>
+            </div>
+            <div class="idle-status-item">
+              <div class="idle-indicator" id="systemIdleIndicator">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+              </div>
+              <span class="idle-label">系统</span>
+              <span class="idle-state" id="systemIdleState">--</span>
+              <span class="idle-duration" id="systemIdleDuration"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Idle Duration Distribution -->
+        <div class="card input-card input-card-wide">
+          <div class="card-header">
+            <h3>⏱️ 空闲时长分布</h3>
+            <span class="text-muted text-sm">各类型输入空闲时长统计</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="idleChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Screenshot Modal -->
+  <div class="modal" id="screenshotModal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">截图预览</h3>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="modalImage" src="" alt="截图">
+      </div>
+      <div class="modal-footer">
+        <span class="modal-meta" id="modalMeta"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+  </div><!-- end appContainer -->
+
+  <script src="app.js"></script>
+</body>
+</html>

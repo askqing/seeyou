@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ========== 网络权限 ========== -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- ========== 前台服务权限 ========== -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- ========== 通知权限 (Android 13+) ========== -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- ========== 无障碍服务权限（通过 AccessibilityService 声明） ========== -->
+    <!-- 无障碍服务不需要在 Manifest 中声明权限，但需要配置 -->
+
+    <!-- ========== 悬浮窗权限 ========== -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- ========== 音频录制权限（环境音频识别） ========== -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- ========== 传感器权限（光线传感器） ========== -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND" />
+
+    <!-- ========== 日历读取权限（会议检测） ========== -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+
+    <!-- ========== 截屏权限（MediaProjection） ========== -->
+    <!-- MediaProjection 通过运行时请求，不需要 Manifest 声明 -->
+
+    <!-- ========== 健康连接查询 ========== -->
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+
+    <!-- ========== 后台启动权限 ========== -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".StalkerApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StalkerPanel"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="34">
+
+        <!-- ========== 主 Activity ========== -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ========== 手动截图 Activity ========== -->
+        <activity
+            android:name=".ui.ManualScreenshotActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <!-- 接收其他 App 分享的图片 -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
+        <!-- ========== 设置 Activity ========== -->
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings_title" />
+
+        <!-- ========== 无障碍服务 ========== -->
+        <service
+            android:name=".service.AccessibilityMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- ========== 环境音频监听服务 ========== -->
+        <service
+            android:name=".service.AudioMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
+        <!-- ========== 截屏服务 ========== -->
+        <service
+            android:name=".service.ScreenshotService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <!-- ========== 传感器采集服务 ========== -->
+        <service
+            android:name=".service.SensorCollectionService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
+        <!-- ========== 心跳/数据同步服务 ========== -->
+        <service
+            android:name=".service.SyncService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
+        <!-- ========== 开机自启动接收器 ========== -->
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ========== 日历事件变化接收器（会议检测） ========== -->
+        <receiver
+            android:name=".receiver.MeetingModeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PROVIDER_CHANGED" />
+                <data android:scheme="content" />
+                <data android:host="com.android.calendar" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

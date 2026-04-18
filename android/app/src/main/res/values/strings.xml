@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 应用名称 -->
+    <string name="app_name">视奸面板</string>
+
+    <!-- 通用 -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="close">关闭</string>
+    <string name="loading">加载中…</string>
+    <string name="error">错误</string>
+    <string name="success">成功</string>
+    <string name="retry">重试</string>
+    <string name="enabled">已启用</string>
+    <string name="disabled">已禁用</string>
+    <string name="unknown">未知</string>
+
+    <!-- 主界面 -->
+    <string name="title_main">视奸面板 - 设备端</string>
+    <string name="server_url">服务器地址</string>
+    <string name="server_url_hint">http://192.168.1.100:8080</string>
+    <string name="device_name">设备名称</string>
+    <string name="device_name_hint">我的手机</string>
+    <string name="status_label">状态</string>
+    <string name="status_connected">已连接</string>
+    <string name="status_disconnected">未连接</string>
+    <string name="last_sync">上次同步</string>
+    <string name="test_connection">测试连接</string>
+    <string name="save_settings">保存设置</string>
+
+    <!-- 功能开关 -->
+    <string name="feature_accessibility">无障碍监控</string>
+    <string name="feature_accessibility_desc">监控前台应用切换和窗口变化</string>
+    <string name="feature_health_connect">健康数据</string>
+    <string name="feature_health_connect_desc">读取并上传步数数据</string>
+    <string name="feature_screenshot">远程截图</string>
+    <string name="feature_screenshot_desc">接收服务器截图请求并上传</string>
+    <string name="feature_audio">环境音频</string>
+    <string name="feature_audio_desc">分析环境声音标签</string>
+    <string name="feature_sensor">环境光传感器</string>
+    <string name="feature_sensor_desc">采集环境光线数据</string>
+    <string name="feature_meeting_mode">会议模式</string>
+    <string name="feature_meeting_mode_desc">开会时暂停所有监控</string>
+
+    <!-- 手动截图 -->
+    <string name="manual_screenshot">手动截图</string>
+    <string name="screenshot_hint">点击下方按钮截图并上传到服务器</string>
+    <string name="take_screenshot">截取屏幕</string>
+    <string name="screenshot_uploading">截图上传中…</string>
+    <string name="screenshot_success">截图已上传</string>
+    <string name="screenshot_failed">截图失败</string>
+    <string name="screenshot_meeting_mode">会议模式中，无法截图</string>
+
+    <!-- 无障碍服务 -->
+    <string name="accessibility_service_description">视奸面板需要无障碍权限来监控前台应用切换、窗口内容变化，用于构建操作节奏分析。数据将发送到配置的服务器。</string>
+    <string name="accessibility_not_enabled">无障碍服务未启用</string>
+    <string name="accessibility_enable_prompt">请前往系统设置 > 无障碍 > 已下载的服务 > 视奸面板，开启无障碍服务</string>
+    <string name="go_to_settings">去设置</string>
+
+    <!-- 通知 -->
+    <string name="notification_channel_main">监控服务</string>
+    <string name="notification_channel_main_desc">显示监控服务运行状态</string>
+    <string name="notification_channel_screenshot">截图服务</string>
+    <string name="notification_channel_screenshot_desc">截图上传通知</string>
+    <string name="notification_title">视奸面板运行中</string>
+    <string name="notification_text_meeting">会议模式已开启，监控已暂停</string>
+    <string name="notification_text_monitoring">正在监控: %1$s</string>
+    <string name="notification_text_idle">服务就绪</string>
+
+    <!-- 会议模式 -->
+    <string name="meeting_mode_active">会议模式已开启</string>
+    <string name="meeting_mode_inactive">会议模式已关闭</string>
+    <string name="meeting_detected">检测到日历会议，已自动开启会议模式</string>
+    <string name="meeting_ended">会议已结束，已自动关闭会议模式</string>
+    <string name="toggle_meeting_mode">切换会议模式</string>
+
+    <!-- 健康连接 -->
+    <string name="health_connect_not_available">设备不支持 Health Connect</string>
+    <string name="health_connect_permission_required">需要 Health Connect 步数读取权限</string>
+    <string name="health_connect_grant_permission">授权 Health Connect</string>
+
+    <!-- 音频监控 -->
+    <string name="audio_permission_required">需要麦克风权限来分析环境音频</string>
+    <string name="audio_tag_silent">安静</string>
+    <string name="audio_tag_speech">语音</string>
+    <string name="audio_tag_music">音乐</string>
+    <string name="audio_tag_noise">噪音</string>
+    <string name="audio_tag_meeting">会议</string>
+    <string name="audio_tag_outdoor">户外</string>
+
+    <!-- 设置 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_server">服务器配置</string>
+    <string name="settings_server_url">服务器地址</string>
+    <string name="settings_device_name">设备名称</string>
+    <string name="settings_upload_interval">上传间隔（秒）</string>
+    <string name="settings_heartbeat_interval">心跳间隔（秒）</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_version">版本 %1$s</string>
+
+    <!-- 错误信息 -->
+    <string name="error_empty_server_url">服务器地址不能为空</string>
+    <string name="error_invalid_url">无效的服务器地址</string>
+    <string name="error_connection_failed">连接服务器失败</string>
+    <string name="error_permission_denied">权限被拒绝</string>
+    <string name="error_device_not_registered">设备未注册</string>
+    <string name="error_upload_failed">上传失败</string>
+    <string name="error_screenshot_permission">需要截屏权限</string>
+
+    <!-- 日志 -->
+    <string name="log_tag">StalkerPanel</string>
+</resources>

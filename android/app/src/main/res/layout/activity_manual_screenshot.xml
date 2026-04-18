@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    tools:context=".ui.ManualScreenshotActivity">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/primary"
+        android:title="@string/manual_screenshot"
+        android:titleTextColor="@color/white" />
+
+    <!-- 截图预览区域 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="@dimen/margin_medium">
+
+        <ImageView
+            android:id="@+id/ivScreenshotPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/gray_100"
+            android:scaleType="fitCenter"
+            android:contentDescription="截图预览" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/screenshot_hint"
+            android:textColor="@color/text_hint"
+            android:textSize="@dimen/text_size_body" />
+
+    </FrameLayout>
+
+    <!-- 操作按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_medium">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTakeScreenshot"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@android:drawable/ic_menu_camera"
+            android:text="@string/take_screenshot" />
+
+    </LinearLayout>
+
+</LinearLayout>

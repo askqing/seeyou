@@ -1,0 +1,49 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'windows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'windows/**'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('windows/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r windows/requirements.txt
+          pip install pyinstaller
+
+      - name: Build Windows EXE
+        run: |
+          cd windows
+          pyinstaller --onefile --noconsole --name seeyou-windows stalker_client.py
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-exe
+          path: windows/dist/seeyou-windows.exe
+          retention-days: 7

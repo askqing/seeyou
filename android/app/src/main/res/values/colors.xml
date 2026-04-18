@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 应用主色调 -->
+    <color name="primary">#FF1976D2</color>
+    <color name="primary_dark">#FF1565C0</color>
+    <color name="primary_variant">#FF0D47A1</color>
+    <color name="secondary">#FF00BCD4</color>
+
+    <!-- 通用颜色 -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="gray_50">#FFFAFAFA</color>
+    <color name="gray_100">#FFF5F5F5</color>
+    <color name="gray_200">#FFEEEEEE</color>
+    <color name="gray_300">#FFE0E0E0</color>
+    <color name="gray_400">#FFBDBDBD</color>
+    <color name="gray_500">#FF9E9E9E</color>
+    <color name="gray_600">#FF757575</color>
+    <color name="gray_700">#FF616161</color>
+    <color name="gray_800">#FF424242</color>
+    <color name="gray_900">#FF212121</color>
+
+    <!-- 状态颜色 -->
+    <color name="status_connected">#FF4CAF50</color>
+    <color name="status_disconnected">#FFF44336</color>
+    <color name="status_syncing">#FFFFC107</color>
+
+    <!-- 功能状态颜色 -->
+    <color name="feature_active">#FF4CAF50</color>
+    <color name="feature_inactive">#FF9E9E9E</color>
+    <color name="meeting_active">#FFFF5722</color>
+
+    <!-- 背景色 -->
+    <color name="background">#FFF5F5F5</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="card_background">#FFFFFFFF</color>
+
+    <!-- 文字颜色 -->
+    <color name="text_primary">#FF212121</color>
+    <color name="text_secondary">#FF757575</color>
+    <color name="text_hint">#FFBDBDBD</color>
+
+    <!-- 分割线 -->
+    <color name="divider">#FFE0E0E0</color>
+
+    <!-- 通知栏背景 -->
+    <color name="notification_bg">#FF1976D2</color>
+</resources>
