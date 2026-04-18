@@ -3,6 +3,7 @@ package com.askqing.stalker.service
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.askqing.stalker.StalkerApplication
@@ -459,8 +460,9 @@ class OperationAnalyzer {
     private val appUsageTime = mutableMapOf<String, Long>()
     // 应用切换记录（时间戳列表）
     private val switchTimestamps = mutableListOf<Long>()
-    // 应用停留时段记录
-    private val appSessions = mutableListOf<Pair<String, Long>>()  // (packageName, durationMs)
+    // 应用停留时段记录: (timestamp, packageName, durationMs)
+    private data class Session(val timestamp: Long, val packageName: String, val durationMs: Long)
+    private val appSessions = mutableListOf<Session>()
 
     /**
      * 记录一次应用切换
@@ -470,7 +472,7 @@ class OperationAnalyzer {
 
         // 记录上一个应用的停留时长
         if (event.fromPackage != null && event.durationInPreviousMs != null) {
-            appSessions.add(Pair(event.fromPackage, event.durationInPreviousMs))
+            appSessions.add(Session(event.timestamp, event.fromPackage, event.durationInPreviousMs))
             appUsageTime[event.fromPackage] = (appUsageTime[event.fromPackage] ?: 0L) + event.durationInPreviousMs
         }
     }
@@ -479,8 +481,9 @@ class OperationAnalyzer {
      * 检测当前模式
      */
     fun detectPattern(): String {
-        val recentSwitches = switchTimestamps.filter { it > System.currentTimeMillis() - 30 * 60 * 1000 }
-        val recentSessions = appSessions.filter { it.first > System.currentTimeMillis() - 30 * 60 * 1000 }.map { Pair(it.first, it.second) }
+        val thirtyMinutesAgo = System.currentTimeMillis() - 30 * 60 * 1000
+        val recentSwitches = switchTimestamps.filter { it > thirtyMinutesAgo }
+        val recentSessions = appSessions.filter { it.timestamp > thirtyMinutesAgo }
 
         if (recentSwitches.isEmpty()) return "idle"
 
@@ -488,9 +491,9 @@ class OperationAnalyzer {
         val switchRate = recentSwitches.size.toFloat() / 30f  // 次/分钟
 
         // 分析使用的应用类型
-        val workTime = recentSessions.filter { isWorkApp(it.first) }.sumOf { it.second }
-        val socialTime = recentSessions.filter { isSocialApp(it.first) }.sumOf { it.second }
-        val totalTime = recentSessions.sumOf { it.second }
+        val workTime = recentSessions.filter { isWorkApp(it.packageName) }.sumOf { it.durationMs }
+        val socialTime = recentSessions.filter { isSocialApp(it.packageName) }.sumOf { it.durationMs }
+        val totalTime = recentSessions.sumOf { it.durationMs }
 
         if (totalTime == 0L) return "normal"
 
@@ -510,18 +513,22 @@ class OperationAnalyzer {
      * 计算专注度评分
      */
     fun calculateFocusScore(): Float {
-        val recentSessions = appSessions.filter { it.first > System.currentTimeMillis() - 30 * 60 * 1000 }.map { Pair(it.first, it.second) }
+        val thirtyMinutesAgo = System.currentTimeMillis() - 30 * 60 * 1000
+        val recentSessions = appSessions.filter { it.timestamp > thirtyMinutesAgo }
         if (recentSessions.isEmpty()) return 0f
 
-        val recentSwitches = switchTimestamps.filter { it > System.currentTimeMillis() - 30 * 60 * 1000 }
+        val recentSwitches = switchTimestamps.filter { it > thirtyMinutesAgo }
         val switchRate = recentSwitches.size.toFloat() / 30f
 
+        val totalDuration = recentSessions.sumOf { it.durationMs }.toFloat()
+        if (totalDuration <= 0f) return 0f
+
         // 专注度 = 100 - (切换频率惩罚) + (工作应用加分) - (社交应用惩罚)
-        val switchPenalty = minOf(switchRate * 5, 50)  // 最多扣 50 分
-        val workBonus = recentSessions.filter { isWorkApp(it.first) }.sumOf { it.second }.toFloat()
-            .div(maxOf(recentSessions.sumOf { it.second }, 1)) * 20  // 最多加 20 分
-        val socialPenalty = recentSessions.filter { isSocialApp(it.first) }.sumOf { it.second }.toFloat()
-            .div(maxOf(recentSessions.sumOf { it.second }, 1)) * 15  // 最多扣 15 分
+        val switchPenalty = (switchRate * 5).coerceAtMost(50f)  // 最多扣 50 分
+        val workTime = recentSessions.filter { isWorkApp(it.packageName) }.sumOf { it.durationMs }.toFloat()
+        val socialTime = recentSessions.filter { isSocialApp(it.packageName) }.sumOf { it.durationMs }.toFloat()
+        val workBonus = (workTime / totalDuration) * 20  // 最多加 20 分
+        val socialPenalty = (socialTime / totalDuration) * 15  // 最多扣 15 分
 
         return (100 - switchPenalty + workBonus - socialPenalty).coerceIn(0f, 100f)
     }
@@ -531,8 +538,8 @@ class OperationAnalyzer {
      */
     fun getMaxFocusDuration(): Long {
         return appSessions
-            .filter { isWorkApp(it.first) }
-            .maxOfOrNull { it.second } ?: 0L
+            .filter { isWorkApp(it.packageName) }
+            .maxOfOrNull { it.durationMs } ?: 0L
     }
 
     /**
