@@ -1,5 +1,7 @@
 name: Build Android
 
+# Auto-triggered on push to android/** paths
+
 on:
   push:
     branches: [main]
