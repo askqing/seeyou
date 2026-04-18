@@ -25,19 +25,15 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Generate Gradle Wrapper
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.2
-
-      - name: Generate gradlew
         run: |
           cd android
           gradle wrapper --gradle-version 8.2
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
       - name: Build Android APK (Release)
-        run: |
-          cd android
-          ./gradlew assembleRelease --no-daemon
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
 
       - name: Set up Python
         uses: actions/setup-python@v5
